@@ -14,15 +14,18 @@ ENV/
 .idea/
 
 # Generated features and results (too large for git)
+features
 features/
 results/
 results_*/
 *.pkl
 *.npy
 
-# Exception: Keep LAION means (small, essential files)
+# Exception: Keep LAION means and synthetic data (small, essential files)
 !data/laion_mean/*.pkl
 !data/laion_mean/*.npy
+!synthetic_data/*.pkl
+!synthetic_data/*.npy
 
 # Dataset files (user must provide)
 data/ilcir202_censored/
