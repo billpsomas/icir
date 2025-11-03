@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+tenv/
+tenv2/
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Generated features and results
+features/
+results/
+results_*/
+*.pkl
+*.npy
+
+# Data directories (too large for git)
+data/laion_mean/*.pkl
+data/*/full_files.csv
+data/*/query_files.csv
+data/*/database_files.csv
+
+# Experimental/temporary files
+ou.txt
+out.txt
+queries.txt
+test_actual_captions.txt
+*.log
+*.tmp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Model checkpoints
+*.pth
+*.ckpt
+
+# Large data files
+*.tar
+*.zip
+*.gz
