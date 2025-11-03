@@ -392,23 +392,25 @@ def save_results(instance_results, args, method, dataset_name, elapsed_time):
     print(f"Saved per-query APs to: {APs_file}")
     
     # Save detailed retrieval logs
-    logs_dir = os.path.join(args.results_dir, "retrieval_logs")
-    os.makedirs(logs_dir, exist_ok=True)
+    # Uncomment the following block to enable detailed logs
+    # 
+    # logs_dir = os.path.join(args.results_dir, "retrieval_logs")
+    # os.makedirs(logs_dir, exist_ok=True)
     
-    top_k = 10
-    logs_file = os.path.join(logs_dir, f"{args.backbone}_{dataset_name}_{method}_top{top_k}_results.csv")
+    # top_k = 10
+    # logs_file = os.path.join(logs_dir, f"{args.backbone}_{dataset_name}_{method}_top{top_k}_results.csv")
     
-    query_log_rows = build_query_log(instance_results, top_k=top_k)
+    # query_log_rows = build_query_log(instance_results, top_k=top_k)
     
-    with open(logs_file, "w", newline="") as f:
-        writer = csv.writer(f)
-        header = ["Query Image", "Text Query", "AP", f"P@{top_k}", f"R@{top_k}"]
-        header += [f"Top-{i+1} Path" for i in range(top_k)]
-        header += [f"Top-{i+1} Match" for i in range(top_k)]
-        writer.writerow(header)
-        writer.writerows(query_log_rows)
+    # with open(logs_file, "w", newline="") as f:
+    #     writer = csv.writer(f)
+    #     header = ["Query Image", "Text Query", "AP", f"P@{top_k}", f"R@{top_k}"]
+    #     header += [f"Top-{i+1} Path" for i in range(top_k)]
+    #     header += [f"Top-{i+1} Match" for i in range(top_k)]
+    #     writer.writerow(header)
+    #     writer.writerows(query_log_rows)
     
-    print(f"Saved detailed retrieval logs to: {logs_file}")
+    # print(f"Saved detailed retrieval logs to: {logs_file}")
     
     return mAP
 
