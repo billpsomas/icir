@@ -178,11 +178,12 @@ icir/
 If you use this code in your research, please cite:
 
 ```bibtex
-@article{icir2024,
-  title={Instance-Level Composed Image Retrieval via Feature Decomposition},
-  author={Your Name},
-  journal={Conference/Journal},
-  year={2024}
+@inproceedings{
+    psomas2025instancelevel,
+    title={Instance-Level Composed Image Retrieval},
+    author={Bill Psomas and George Retsinas and Nikos Efthymiadis and Panagiotis Filntisis and Yannis Avrithis and Petros Maragos and Ondrej Chum and Giorgos Tolias},
+    booktitle={The Thirty-ninth Annual Conference on Neural Information Processing Systems},
+    year={2025}
 }
 ```
 
