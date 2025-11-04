@@ -10,8 +10,8 @@ import argparse
 import csv
 
 from utils import setup_device
-from utils_features import load_model, read_ilcir
-from utils_retrieval import calculate_rankings, map_calc_ilcir
+from utils_features import load_model, read_icir
+from utils_retrieval import calculate_rankings, map_calc_icir
 
 
 # Method presets: predefined configurations for each retrieval method
@@ -52,7 +52,7 @@ def parse_args():
     
     # Basic settings
     parser.add_argument("--gpu", default=0, type=int, help="GPU id")
-    parser.add_argument("--dataset", default="ilcir", type=str, help="Dataset name")
+    parser.add_argument("--dataset", default="icir", type=str, help="Dataset name")
     parser.add_argument("--backbone", choices=["clip", "siglip"], default="clip", type=str, help="Vision-language model backbone")
     parser.add_argument("--method", choices=["image", "text", "sum", "product", "basic"], type=str, default="basic", help="Retrieval method")
     
@@ -115,7 +115,7 @@ def apply_method_preset(args):
     parser = argparse.ArgumentParser()
     # Re-add all arguments (needed to detect defaults)
     parser.add_argument("--gpu", default=0, type=int)
-    parser.add_argument("--dataset", default="ilcir", type=str)
+    parser.add_argument("--dataset", default="icir", type=str)
     parser.add_argument("--backbone", choices=["clip", "siglip"], default="clip", type=str)
     parser.add_argument("--method", choices=["image", "text", "sum", "product", "basic"], type=str, default="basic")
     parser.add_argument("--contextualize", action="store_true")
@@ -164,7 +164,7 @@ def apply_method_preset(args):
 
 def load_dataset(backbone, dataset_name, device, contextualize, norm=True):
     """
-    Load query and database features for ILCIR dataset.
+    Load query and database features for icir dataset.
     
     Returns:
         Tuple of (data_dict, dataset_name) where data_dict has structure:
@@ -173,18 +173,19 @@ def load_dataset(backbone, dataset_name, device, contextualize, norm=True):
             "database": {"image_feats", "paths", "instances", "texts"}
         }
     """
-    # ILCIR uses the censored version
-    if dataset_name.lower() == "ilcir":
+    
+    # icir uses the censored version
+    if dataset_name.lower() == "icir":
         dataset_name = "ilcir202_censored"
     
     features_dir = os.path.join("features", f"{backbone}_features", dataset_name)
-    query_path = os.path.join(features_dir, "query_ilcir_features.pkl")
-    database_path = os.path.join(features_dir, "database_ilcir_features.pkl")
+    query_path = os.path.join(features_dir, "query_icir_features.pkl")
+    database_path = os.path.join(features_dir, "database_icir_features.pkl")
     
     print(f"Loading dataset from {features_dir}...")
     
     # Read features - returns structured dictionary with "query" and "database" keys
-    data = read_ilcir(query_path, database_path, device, contextualize=contextualize, norm=norm)
+    data = read_icir(query_path, database_path, device, contextualize=contextualize, norm=norm)
     
     return data, dataset_name
 
@@ -228,7 +229,7 @@ def process_instance(instance, data, args):
     )
     
     # Calculate metrics
-    metrics = map_calc_ilcir(
+    metrics = map_calc_icir(
         rankings, db_paths, query_paths, query_instances, 
         query_texts, db_instances, db_texts
     )

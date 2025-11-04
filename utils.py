@@ -1,5 +1,5 @@
 """
-Utility functions for ILCIR feature extraction and retrieval.
+Utility functions for icir feature extraction and retrieval.
 """
 
 import numpy as np

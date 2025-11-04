@@ -1,11 +1,16 @@
 """
-Feature extraction and loading utilities for ILCIR dataset.
+Feature extraction and loading utilities for icir dataset.
 """
 
+import os
+import csv
 import pickle
 import numpy as np
 import torch
+from torch.utils.data import Dataset
+from PIL import Image
 import open_clip
+
 
 # =============================================================================
 # Model Loading
@@ -138,13 +143,54 @@ def contextualize(model, tokenizer, dim, real_text, corpus_path, number, device,
     return all_features.mean(dim=1)
 
 # =============================================================================
-# ILCIR Feature Extraction and Loading
+# icir Feature Extraction and Loading
 # =============================================================================
 
-
-def save_ilcir(model, tokenizer, dataloader, save_file, device, contextual=None):
+class icir_dataset(Dataset):
     """
-    Extract and save ILCIR dataset features.
+    PyTorch Dataset for ICIR data.
+    
+    Loads image paths, text queries, and instance IDs from a CSV file.
+    Format: image_path,text_query,instance_id
+    """
+    
+    def __init__(self, input_filename, preprocess, root=None):
+        """
+        Args:
+            input_filename: Path to CSV file with format "image_path,text,instance"
+            preprocess: Image preprocessing function from model
+            root: Optional root directory to prepend to image paths
+        """
+        with open(input_filename, 'r') as f:
+            lines = f.readlines()
+        
+        # Parse CSV: image_path,text,instance_id
+        filenames = [line.strip() for line in lines]
+        self.images = [name.split(",")[0] for name in filenames]
+        self.text = [name.split(",")[1] for name in filenames]
+        self.instance = [name.split(",")[2] for name in filenames]
+        self.preprocess = preprocess
+        self.root = root
+    
+    def __len__(self):
+        return len(self.images)
+    
+    def __getitem__(self, idx):
+        """Returns (image_tensor, img_path, instance_id, text_query)"""
+        if self.root is not None:
+            img_path = os.path.join(self.root, self.images[idx])
+        else:
+            img_path = self.images[idx]
+        
+        image = self.preprocess(Image.open(img_path))
+        instance = self.instance[idx]
+        text = self.text[idx]
+        
+        return image, img_path, instance, text
+
+def save_icir(model, tokenizer, dataloader, save_file, device, contextual=None):
+    """
+    Extract and save icir dataset features.
     
     Args:
         model: Vision-language model
@@ -161,15 +207,17 @@ def save_ilcir(model, tokenizer, dataloader, save_file, device, contextual=None)
     all_text_features = []
     
     is_query = "query" in save_file
+    total_items = len(dataloader.dataset)
     
     with torch.no_grad():
         for images, img_paths, instances, texts in dataloader:
-            print(f"Processing {len(all_image_filenames) + len(img_paths)} items...", end="\r")
+            current = len(all_image_filenames) + len(img_paths)
+            print(f"Processing {current}/{total_items} items...", end="\r")
             
             # Encode images
             images = images.to(device)
             image_features = model.encode_image(images)
-            all_image_features.append(image_features)
+            all_image_features.append(image_features.cpu())
             
             # Store metadata
             all_image_filenames.extend(img_paths)
@@ -180,22 +228,23 @@ def save_ilcir(model, tokenizer, dataloader, save_file, device, contextual=None)
             if is_query:
                 text_tokens = tokenizer(texts, context_length=model.context_length).to(device)
                 text_features = model.encode_text(text_tokens)
-                all_text_features.append(text_features)
+                all_text_features.append(text_features.cpu())
     
     print()  # New line after progress
     
     # Build output dictionary
     output = {
-        "image_feats": torch.cat(all_image_features, dim=0).cpu().numpy(),
+        "image_feats": torch.cat(all_image_features, dim=0).numpy(),
         "paths": all_image_filenames,
         "instances": all_instances,
         "texts": all_texts
     }
     
     if is_query:
-        output["text_feats"] = torch.cat(all_text_features, dim=0).cpu().numpy()
+        output["text_feats"] = torch.cat(all_text_features, dim=0).numpy()
         
         # Add contextualized features if requested
+        # use 100 corpus words by default
         if contextual is not None:
             dim = output["text_feats"].shape[1]
             output['context_text_feats'] = contextualize(
@@ -210,9 +259,9 @@ def save_ilcir(model, tokenizer, dataloader, save_file, device, contextual=None)
     
     print(f"Saved features to {save_file}")
 
-def read_ilcir(query_dir, database_dir, device, contextualize=False, norm=True, subset=None):
+def read_icir(query_dir, database_dir, device, contextualize=False, norm=True, subset=None):
     """
-    Load ILCIR dataset features from pickle files.
+    Load icir dataset features from pickle files.
     
     Args:
         query_dir: Path to query features pickle file
@@ -297,7 +346,7 @@ def read_ilcir(query_dir, database_dir, device, contextualize=False, norm=True, 
 # =============================================================================
 
 
-def save_corpus_features(model, tokenizer, corpus_path, save_file, device):
+def save_corpus_features(model, tokenizer, corpus_path, save_file, device, batch_size=128):
     """
     Extract and save text corpus features from CSV file.
     
@@ -307,9 +356,9 @@ def save_corpus_features(model, tokenizer, corpus_path, save_file, device):
         corpus_path: Path to CSV file with text prompts
         save_file: Path to save pickle file
         device: Torch device
+        batch_size: Batch size for processing (default: 128)
     """
     # Read prompts from CSV file
-    import csv
     prompts = []
     with open(corpus_path, newline="") as csvfile:
         csv_reader = csv.reader(csvfile)
@@ -318,15 +367,21 @@ def save_corpus_features(model, tokenizer, corpus_path, save_file, device):
     
     print(f"Extracting features for {len(prompts)} prompts...")
     
-    # Extract text features
+    # Extract text features in batches
     all_text_features = []
+    num_batches = (len(prompts) + batch_size - 1) // batch_size
+    
     with torch.no_grad():
-        for idx, prompt in enumerate(prompts):
-            print(f"Processing {idx + 1}/{len(prompts)}", end="\r")
+        for i in range(num_batches):
+            start_idx = i * batch_size
+            end_idx = min((i + 1) * batch_size, len(prompts))
+            batch = prompts[start_idx:end_idx]
             
-            text_tokens = tokenizer([prompt], context_length=model.context_length).to(device)
+            print(f"Processing {end_idx}/{len(prompts)} prompts...", end="\r")
+            
+            text_tokens = tokenizer(batch, context_length=model.context_length).to(device)
             text_features = model.encode_text(text_tokens)
-            all_text_features.append(text_features)
+            all_text_features.append(text_features.cpu())
     
     print()  # New line after progress
     
@@ -334,7 +389,7 @@ def save_corpus_features(model, tokenizer, corpus_path, save_file, device):
     all_text_features = torch.cat(all_text_features, dim=0)
     
     output = {
-        "feats": all_text_features.cpu().numpy(),
+        "feats": all_text_features.numpy(),
         "prompts": prompts
     }
     

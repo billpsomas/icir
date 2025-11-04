@@ -247,9 +247,9 @@ def metrics_calc(
     print(metrics)
     return metrics, AP_list
 
-def map_calc_ilcir(rankings, db_paths, q_paths, q_instances, q_texts, db_instances, db_texts):
+def map_calc_icir(rankings, db_paths, q_paths, q_instances, q_texts, db_instances, db_texts):
     """
-    Calculate mean Average Precision for ILCIR dataset.
+    Calculate mean Average Precision for icir dataset.
     
     A match is correct if both the instance AND text query match between query and database item.
     

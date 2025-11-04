@@ -48,7 +48,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Frature extraction parameters")
     parser.add_argument(
         "--dataset",
-        choices=["ilcir", "corpus"],
+        choices=["icir", "corpus"],
         type=str,
         help="define dataset",
     )
@@ -85,13 +85,14 @@ def main():
             corpus_path = corpora_path + "/" + corpus_name + ".csv"
             save_file = os.path.join(save_dir, corpus_name + ".pkl")
             save_corpus_features(model=model, tokenizer=tokenizer, corpus_path=corpus_path, save_file=save_file, device=args.device)
-    elif args.dataset.lower() == "ilcir":
-        query_dataset = ilcir_dataset(input_filename=os.path.join(".", "data", args.dataset, "query_files.csv"), preprocess=preprocess, root="./data")
-        database_dataset = ilcir_dataset(input_filename=os.path.join(".", "data", args.dataset, "database_files.csv"), preprocess=preprocess, root="./data")
+    elif args.dataset.lower() == "icir":
+        dataset_name = "ilcir202_censored"
+        query_dataset = icir_dataset(input_filename=os.path.join(".", "data", dataset_name, "query_files.csv"), preprocess=preprocess, root="./data")
+        database_dataset = icir_dataset(input_filename=os.path.join(".", "data", dataset_name, "database_files.csv"), preprocess=preprocess, root="./data")
         query_dataloader = DataLoader(query_dataset, batch_size=args.batch, shuffle=False, num_workers=8, pin_memory=True)
         database_dataloader = DataLoader(database_dataset, batch_size=args.batch, shuffle=False, num_workers=8, pin_memory=True)
-        save_ilcir(model=model, dataloader=query_dataloader, tokenizer=tokenizer, save_file=os.path.join(save_dir, f"query_{args.dataset}_features.pkl"), device=args.device, contextual="./data/open_image_v7_class_names.csv")
-        save_ilcir(model=model, dataloader=database_dataloader, tokenizer=tokenizer, save_file=os.path.join(save_dir, f"database_{args.dataset}_features.pkl"), device=args.device)
+        save_icir(model=model, dataloader=query_dataloader, tokenizer=tokenizer, save_file=os.path.join(save_dir, f"query_{args.dataset}_features.pkl"), device=args.device, contextual="./corpora/generic_subjects.csv")
+        save_icir(model=model, dataloader=database_dataloader, tokenizer=tokenizer, save_file=os.path.join(save_dir, f"database_{args.dataset}_features.pkl"), device=args.device)
 
 if __name__ == "__main__":
     main()
