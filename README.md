@@ -10,8 +10,6 @@ Official implementation of our **B**aseline **A**pproach for **S**urpr**I**singl
 
 **TL;DR**: We introduce **BASIC**, a training-free VLM-based method that centers and projects image embeddings, and **i-CIR**—a curated, instance-level composed image retrieval benchmark with rich hard negatives that is compact yet really hard.
 
----
-
 ## Overview
 
 This repository contains a clean implementation for performing composed image retrieval (CIR) on **i-CIR** dataset using vision-language models (CLIP/SigLIP). 
@@ -37,12 +35,12 @@ Our BASIC method decomposes multimodal queries into object and style components 
 i-CIR is an instance-level composed image retrieval benchmark where each *instance* is a specific, visually indistinguishable object (e.g., Temple of Poseidon). Each query composes an image of the instance with a text modification. For every instance we curate a shared database and define composed positives plus a rich set of **hard negatives**—**visual** (same/similar object, wrong text), **textual** (right text semantics, different instance—often same category), and **composed** (nearly matches both parts but fails one).
 
 <p align="center">
-<img width="85%" alt="EP illustration" src=".github/dataset.png">
+<img width="75%" alt="EP illustration" src=".github/dataset.png">
 </p>
 
 #### Compact but hard
 
-<img src=".github/hard.png" align="right" width="45%">
+<img src=".github/hard.png" align="right" width="40%">
 
 Built by combining human curation with automated retrieval from LAION, followed by filtering (quality/duplicates/PII) and manual verification of positives and hard negatives, **i-CIR** is compact yet challenging: it rivals searching with **>40M distractor images** for simple baselines, while keeping per-query databases manageable. **Key stats:**
 - **Instances:** 202  
@@ -63,8 +61,6 @@ Performance peaks at interior text–image fusion weights ($\lambda$) and shows 
 <p align="center">
 <img width="80%" alt="EP illustration" src=".github/compositional.png">
 </p>
-
----
 
 ## 🔽 Download the i-CIR dataset
 
@@ -252,8 +248,8 @@ Each result file includes:
 | CoVR              |     11.52 | 24.93 |   27.76 | 24.68 | 28.50 |
 | FREEDOM           |     29.91 | 26.10 |   37.27 | 33.24 | 17.24 |
 | FREEDOM†          |     25.81 | 23.24 |   32.14 | 30.82 | 15.76 |
-| **Ours (BASIC)**  | **32.13** | **31.65** | **39.58** | **41.38** | 31.64 |
-| **Ours†**         |     27.54 | 28.90 |   35.75 | 38.22 | **34.35** |
+| **BASIC**  | **32.13** | **31.65** | **39.58** | **41.38** | 31.64 |
+| **BASIC†**         |     27.54 | 28.90 |   35.75 | 38.22 | **34.35** |
 
 † Without query expansion.
 
