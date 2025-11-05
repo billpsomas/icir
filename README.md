@@ -1,15 +1,94 @@
-# ICIR: Instance-Level Composed Image Retrieval
+# i-CIR: Instance-Level Composed Image Retrieval (NeurIPS 2025)
 
-Official implementation of our composed image retrieval method using PCA-based feature decomposition for the ILCIR dataset.
+[![Dataset Version](https://img.shields.io/badge/Dataset-v1.0.0-blue.svg)](#)
+[![Dataset License](https://img.shields.io/badge/Dataset%20License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Code License: MIT](https://img.shields.io/badge/Code%20License-MIT-yellow.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.9%2B-informational.svg)](#)
+
+Official implementation of our **B**aseline **A**pproach for **S**urpr**I**singly strong **C**omposition (**BASIC**) and the **i**nstance-level **c**omposed **i**mage **r**etrieval (**i-CIR**) dataset.   
+[[`arXiv`](https://arxiv.org/abs/2510.25387)] · [[`paper`](https://openreview.net/pdf?id=7NEP4jGKwA)] · [[`project page`](https://vrg.fel.cvut.cz/icir/)]
+
+**TL;DR**: We introduce **BASIC**, a training-free VLM-based method that centers and projects image embeddings, and **i-CIR**—a curated, instance-level composed image retrieval benchmark with rich hard negatives that is compact yet really hard.
+
+---
 
 ## Overview
 
-This repository contains a clean implementation for performing composed image retrieval (CIR) on the ILCIR dataset using vision-language models (CLIP/SigLIP). Our **basic** method decomposes multimodal queries into object and style components through:
+This repository contains a clean implementation for performing composed image retrieval (CIR) on **i-CIR** dataset using vision-language models (CLIP/SigLIP). 
+
+
+### Method (BASIC)
+
+Our BASIC method decomposes multimodal queries into object and style components through:
 
 1. **Feature Standardization**: Centering features using LAION-1M statistics
 2. **Contrastive PCA Projection**: Separating information using positive and negative text corpora
 3. **Query Expansion**: Refining queries with top-k similar database images
 4. **Harris Corner Fusion**: Combining image and text similarities with geometric weighting
+
+<p align="center">
+<img width="85%" alt="EP illustration" src=".github/method.png">
+</p>
+
+### Dataset
+
+#### Well-curated
+
+i-CIR is an instance-level composed image retrieval benchmark where each *instance* is a specific, visually indistinguishable object (e.g., Temple of Poseidon). Each query composes an image of the instance with a text modification. For every instance we curate a shared database and define composed positives plus a rich set of **hard negatives**—**visual** (same/similar object, wrong text), **textual** (right text semantics, different instance—often same category), and **composed** (nearly matches both parts but fails one).
+
+<p align="center">
+<img width="85%" alt="EP illustration" src=".github/dataset.png">
+</p>
+
+#### Compact but hard
+
+<img src=".github/hard.png" align="right" width="45%">
+
+Built by combining human curation with automated retrieval from LAION, followed by filtering (quality/duplicates/PII) and manual verification of positives and hard negatives, **i-CIR** is compact yet challenging: it rivals searching with **>40M distractor images** for simple baselines, while keeping per-query databases manageable. **Key stats:**
+- **Instances:** 202  
+- **Total images:** ~750K  
+- **Composed queries:** 1,883  
+- **Image queries / instance:** 1–46 
+- **Text queries / instance:** 1–5
+- **Positives / composed query:** 1–127
+- **Hard negatives / instance:** 951–10,045
+- **Avg database size / query:** ~3.7K images  
+
+<br clear="right"/>
+
+#### Truly compositional
+
+Performance peaks at interior text–image fusion weights ($\lambda$) and shows large **composition gains** over the best uni-modal baselines—evidence that both modalities *must* work together.
+
+<p align="center">
+<img width="80%" alt="EP illustration" src=".github/compositional.png">
+</p>
+
+---
+
+## 🔽 Download the i-CIR dataset
+
+**Option A — Direct tarball (recommended):**
+```bash
+# Download 
+wget https://vrg.fel.cvut.cz/icir/download/icir_v1.0.0.tar.gz -O icir_v1.0.0.tar.gz
+# Extract
+tar -xzf icir_v1.0.0.tar.gz
+# Verify
+sha256sum -c icir_v1.0.0.sha256   # should print OK
+```
+
+**Reulting layout:**
+```
+icir/
+├── database/
+├── query/
+├── database_files.csv
+├── query_files.csv
+├── VERSION.txt
+├── LICENSE
+└── checksums.sha256
+```
 
 ## Installation
 
@@ -42,7 +121,7 @@ Ensure you have the following structure:
 ```
 icir/
 ├── data/
-│   ├── ilcir202_censored/          # ILCIR dataset
+│   ├── icir/                       # i-CIR dataset
 │   └── laion_mean/                 # Pre-computed LAION means
 ├── corpora/
 │   ├── generic_subjects.csv        # Positive corpus (objects)
@@ -57,8 +136,8 @@ icir/
 Extract features for the ILCIR dataset and text corpora:
 
 ```bash
-# Extract ILCIR dataset features
-python3 create_features.py --dataset ilcir --backbone clip --batch 512 --gpu 0
+# Extract i-CIR dataset features
+python3 create_features.py --dataset icir --backbone clip --batch 512 --gpu 0
 
 # Extract corpus features
 python3 create_features.py --dataset corpus --backbone clip --batch 512 --gpu 0
@@ -87,7 +166,7 @@ For advanced usage with custom parameters:
 python3 run_retrieval.py \
   --method basic \
   --backbone clip \
-  --dataset ilcir \
+  --dataset icir \
   --results_dir results/ \
   --specified_corpus generic_subjects \
   --specified_ncorpus generic_styles \
@@ -145,7 +224,7 @@ Results are saved to the specified results directory (default: `results/`):
 
 ```
 results/
-└── ilcir/
+└── icir/
     └── {method_variant}/
         └── mAP_table.csv          # Mean Average Precision results
 ```
@@ -154,6 +233,29 @@ Each result file includes:
 - mAP score for the retrieval method
 - Configuration parameters used (for basic method only)
 - Timestamp of the experiment
+
+## Results (mAP \%)
+
+| Method            | ImageNet-R |  NICO | Mini-DN |  LTLL |  i-CIR |
+|:------------------|-----------:|------:|--------:|------:|------:|
+| Text              |      0.74 |  1.09 |    0.57 |  5.72 |  3.01 |
+| Image             |      3.84 |  6.32 |    6.66 | 16.49 |  3.04 |
+| Text + Image      |      6.21 |  9.30 |    9.33 | 17.86 |  8.20 |
+| Text × Image      |      7.83 |  9.79 |    9.86 | 23.16 | 17.48 |
+| WeiCom            |     10.47 | 10.54 |    8.52 | 26.60 | 18.03 |
+| PicWord           |      7.88 |  9.76 |   12.00 | 21.27 | 19.36 |
+| CompoDiff         |     12.88 | 10.32 |   22.95 | 21.61 |  9.63 |
+| CIReVL            |     18.11 | 17.80 |   26.20 | 32.60 | 18.66 |
+| Searle            |     14.04 | 15.13 |   21.78 | 25.46 | 19.90 |
+| MCL               |      8.13 | 19.09 |   18.41 | 16.67 | 19.89 |
+| MagicLens         |      9.13 | 19.66 |   20.06 | 24.21 | 27.35 |
+| CoVR              |     11.52 | 24.93 |   27.76 | 24.68 | 28.50 |
+| FREEDOM           |     29.91 | 26.10 |   37.27 | 33.24 | 17.24 |
+| FREEDOM†          |     25.81 | 23.24 |   32.14 | 30.82 | 15.76 |
+| **Ours (BASIC)**  | **32.13** | **31.65** | **39.58** | **41.38** | 31.64 |
+| **Ours†**         |     27.54 | 28.90 |   35.75 | 38.22 | **34.35** |
+
+† Without query expansion.
 
 ## Project Structure
 
@@ -189,7 +291,8 @@ If you use this code in your research, please cite:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+- This code is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+- This dataset is licensed under the CC-BY-NC-SA License - see dataset's LICENSE file dor details.
 
 ## Acknowledgments
 

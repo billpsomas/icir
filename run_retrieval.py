@@ -115,7 +115,7 @@ def apply_method_preset(args):
     parser = argparse.ArgumentParser()
     # Re-add all arguments (needed to detect defaults)
     parser.add_argument("--gpu", default=0, type=int)
-    parser.add_argument("--dataset", default="icir", type=str)
+    parser.add_argument("--dataset", choices=["icir"], default="icir", type=str)
     parser.add_argument("--backbone", choices=["clip", "siglip"], default="clip", type=str)
     parser.add_argument("--method", choices=["image", "text", "sum", "product", "basic"], type=str, default="basic")
     parser.add_argument("--contextualize", action="store_true")
@@ -173,11 +173,6 @@ def load_dataset(backbone, dataset_name, device, contextualize, norm=True):
             "database": {"image_feats", "paths", "instances", "texts"}
         }
     """
-    
-    # icir uses the censored version
-    if dataset_name.lower() == "icir":
-        dataset_name = "ilcir202_censored"
-    
     features_dir = os.path.join("features", f"{backbone}_features", dataset_name)
     query_path = os.path.join(features_dir, "query_icir_features.pkl")
     database_path = os.path.join(features_dir, "database_icir_features.pkl")
@@ -187,7 +182,7 @@ def load_dataset(backbone, dataset_name, device, contextualize, norm=True):
     # Read features - returns structured dictionary with "query" and "database" keys
     data = read_icir(query_path, database_path, device, contextualize=contextualize, norm=norm)
     
-    return data, dataset_name
+    return data
 
 
 def process_instance(instance, data, args):
@@ -434,7 +429,7 @@ def run_retrieval(args):
     # model, tokenizer = model_struct["model"], model_struct["tokenizer"]
     
     # Load dataset (features are pre-normalized)
-    data, dataset_name = load_dataset(args.backbone, args.dataset, args.device, 
+    data = load_dataset(args.backbone, args.dataset, args.device, 
                                      args.contextualize, norm=True)
     
     # Get unique instances
@@ -457,7 +452,7 @@ def run_retrieval(args):
     # Save results
     elapsed_time = time.time() - start_time
     mAP = save_results(instance_results, args, args.method, 
-                      dataset_name, elapsed_time)
+                      args.dataset, elapsed_time)
     
     return mAP
 

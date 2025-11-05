@@ -86,9 +86,8 @@ def main():
             save_file = os.path.join(save_dir, corpus_name + ".pkl")
             save_corpus_features(model=model, tokenizer=tokenizer, corpus_path=corpus_path, save_file=save_file, device=args.device)
     elif args.dataset.lower() == "icir":
-        dataset_name = "ilcir202_censored"
-        query_dataset = icir_dataset(input_filename=os.path.join(".", "data", dataset_name, "query_files.csv"), preprocess=preprocess, root="./data")
-        database_dataset = icir_dataset(input_filename=os.path.join(".", "data", dataset_name, "database_files.csv"), preprocess=preprocess, root="./data")
+        query_dataset = icir_dataset(input_filename=os.path.join(".", "data", args.dataset.lower(), "query_files.csv"), preprocess=preprocess, root="./data")
+        database_dataset = icir_dataset(input_filename=os.path.join(".", "data", args.dataset.lower(), "database_files.csv"), preprocess=preprocess, root="./data")
         query_dataloader = DataLoader(query_dataset, batch_size=args.batch, shuffle=False, num_workers=8, pin_memory=True)
         database_dataloader = DataLoader(database_dataset, batch_size=args.batch, shuffle=False, num_workers=8, pin_memory=True)
         save_icir(model=model, dataloader=query_dataloader, tokenizer=tokenizer, save_file=os.path.join(save_dir, f"query_{args.dataset}_features.pkl"), device=args.device, contextual="./corpora/generic_subjects.csv")
