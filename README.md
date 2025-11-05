@@ -64,10 +64,12 @@ Performance peaks at interior text–image fusion weights ($\lambda$) and shows 
 
 ## 🔽 Download the i-CIR dataset
 
+i-CIR is stored [here](https://vrg.fel.cvut.cz/icir/icir_v1.0.0.tar.gz).
+
 **Option A — Direct tarball (recommended):**
 ```bash
 # Download 
-wget https://vrg.fel.cvut.cz/icir/download/icir_v1.0.0.tar.gz -O icir_v1.0.0.tar.gz
+wget https://vrg.fel.cvut.cz/icir/icir_v1.0.0.tar.gz -O icir_v1.0.0.tar.gz
 # Extract
 tar -xzf icir_v1.0.0.tar.gz
 # Verify
