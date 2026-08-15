@@ -11,7 +11,7 @@
 [![Project Page](https://img.shields.io/badge/-Project_Page-green.svg?colorA=333&logo=html5)](https://vrg.fel.cvut.cz/icir/)
 [![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Paper-yellow)](https://huggingface.co/papers/2510.25387)
 [![arXiv](https://img.shields.io/badge/arXiv-2510.25387-b31b1b.svg)](https://arxiv.org/abs/2510.25387)
-[![OpenReview](https://img.shields.io/badge/OpenReview-Paper-yellow.svg)](https://openreview.net/pdf?id=7NEP4jGKwA)
+[![OpenReview](https://img.shields.io/badge/OpenReview-Paper-yellow.svg)](https://openreview.net/forum?id=7NEP4jGKwA)
 
 [![Dataset Version](https://img.shields.io/badge/Dataset-v1.0.0-blue.svg)](#)
 [![Dataset License](https://img.shields.io/badge/Dataset%20License-CC%20BY--NC--SA%204.0-blue.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
@@ -389,8 +389,26 @@ If you found BASIC and/or i-CIR useful in your research, please consider starrin
 
 # Acknowledgments
 
+## Code and models
+
 - Vision-language models via [OpenCLIP](https://github.com/mlfoundations/open_clip)
 - LAION-1M statistics for feature standardization
+
+## Funding
+
+This work was supported by:
+
+- The [Junior Star grant](https://starfos.tacr.cz/en/vysledky-vyzkumu?query=skbyaadwnkha) GM 21-28830M of the [Czech Science Foundation (GAČR)](https://gacr.cz/en/)
+- The Czech National Recovery Plan — [CEDMO 2.0 NPO](https://cedmohub.eu/) (MPO 60273/24/21300/21000), provided by the [Ministry of Industry and Trade](https://www.mpo.gov.cz/en/) of the Czech Republic
+- The EU [Horizon Europe](https://research-and-innovation.ec.europa.eu/funding/funding-opportunities/funding-programmes-and-open-calls/horizon-europe_en) programme, [MSCA Postdoctoral Fellowship RAVIOLI](https://cordis.europa.eu/project/id/101205297) (No. 101205297) and [HERON – Hellenic Robotics Center of Excellence](https://cordis.europa.eu/project/id/101136568) (No. 101136568)
+- The National Recovery and Resilience Plan [“Greece 2.0”](https://greece20.gov.gr/en/) / [NextGenerationEU](https://next-generation-eu.europa.eu/index_en) project “Applied Research for Autonomous Robotic Systems” (MIS 5200632)
+- [Czech Technical University in Prague](https://www.cvut.cz/en) (SGS23/173/OHK3/3T/13 and institutional Future Fund)
+
+## Computational resources
+
+We acknowledge [VSB – Technical University of Ostrava](https://www.vsb.cz/en) and [IT4Innovations National Supercomputing Center](https://www.it4i.cz/en), Czech Republic, for awarding this project (OPEN-33-67) access to the [LUMI supercomputer](https://www.lumi-supercomputer.eu/), owned by the [EuroHPC Joint Undertaking](https://eurohpc-ju.europa.eu/), hosted by [CSC](https://csc.fi/en/) (Finland) and the LUMI consortium, through the [Ministry of Education, Youth and Sports of the Czech Republic](https://msmt.gov.cz/) via the [e-INFRA CZ](https://www.e-infra.cz/en) project (ID: 90254).
+
+We also acknowledge the OP VVV project [“Research Center for Informatics”](https://rci.cvut.cz/) (CZ.02.1.01/0.0/0.0/16_019/0000765).
 
 # Contact
 
