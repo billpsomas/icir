@@ -16,6 +16,17 @@ import open_clip
 # Model Loading
 # =============================================================================
 
+def check_clip_activation(model):
+    """Print which activation the CLIP model runs; warn if it is not QuickGELU (the features would not match the paper)."""
+    activations = sorted({type(m).__name__ for m in model.modules() if type(m).__name__ in ("QuickGELU", "GELU")})
+    if activations == ["QuickGELU"]:
+        print(f"Using OpenAI CLIP ViT-L/14 with QuickGELU activations, as in the paper (open_clip {open_clip.__version__}).")
+    else:
+        print(f"WARNING: CLIP ViT-L/14 is running with {', '.join(activations) or 'unknown'} activations instead of QuickGELU "
+              f"(open_clip {open_clip.__version__}). The features will differ from the ones used in the paper; "
+              f"see the note on the CLIP backbone in the README.")
+
+
 def load_model(backbone, device):
     """
     Load vision-language model and tokenizer.
@@ -33,8 +44,12 @@ def load_model(backbone, device):
         model, preprocess = open_clip.create_model_from_pretrained("hf-hub:timm/ViT-L-16-SigLIP-256")
         tokenizer = open_clip.get_tokenizer("hf-hub:timm/ViT-L-16-SigLIP-256")
     elif backbone == "clip":
-        model, preprocess = open_clip.create_model_from_pretrained("ViT-L/14", "openai")
+        # OpenAI trained CLIP ViT-L/14 with QuickGELU activations, and all features in the paper were extracted with them.
+        # Since open_clip 2.29, "ViT-L/14" + "openai" is built with standard GELU unless QuickGELU is forced, which changes
+        # the features and the results. force_quick_gelu=True loads the original model on every open_clip version.
+        model, preprocess = open_clip.create_model_from_pretrained("ViT-L/14", "openai", force_quick_gelu=True)
         tokenizer = open_clip.get_tokenizer("ViT-L-14")
+        check_clip_activation(model)
     else:
         raise ValueError(f"Unknown backbone: {backbone}")
     

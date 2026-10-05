@@ -238,6 +238,13 @@ python3 create_features.py --dataset corpus --backbone clip --batch 512 --gpu 0
 
 Features will be saved to `features/{backbone}_features/`.
 
+> **Note on the CLIP backbone.** The paper uses OpenAI's CLIP ViT-L/14 with its original QuickGELU activation. Since
+> open_clip 2.29, `open_clip.create_model_from_pretrained("ViT-L/14", "openai")` builds this model with standard GELU
+> instead and only prints a warning. GELU features differ from the original ones (cosine about 0.95) and change the
+> results. The code passes `force_quick_gelu=True`, which loads the original model on every open_clip version, and
+> prints which activation is in use. If you extracted features with an earlier version of this repository and
+> open_clip 2.29 or newer, please extract them again.
+
 ## 3. Run Retrieval
 
 The easiest way is to use method presets with `--use_preset`:
