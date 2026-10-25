@@ -180,7 +180,10 @@ def calculate_rankings(args, image_features, text_features, database_features):
             sim_text_gen = text_features_generated @ image_features_generated.t()
             sim_img_min, sim_text_min = sim_img_gen.cpu().min(), sim_text_gen.cpu().min()
 
-            sim_text = (sim_text - sim_text_min)/sim_img_min.abs()        
+            # Each similarity is shifted by its own minimum on the synthetic set and divided by the magnitude of that
+            # minimum, as in the paper. Until 25/10/2026 the code divided both by the image minimum (--text_norm image).
+            text_scale = sim_img_min.abs() if getattr(args, "text_norm", "own") == "image" else sim_text_min.abs()
+            sim_text = (sim_text - sim_text_min)/text_scale
             sim_img = (sim_img - sim_img_min)/sim_img_min.abs()
 
         # Rectify similarities (remove negative values)

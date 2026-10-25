@@ -76,6 +76,9 @@ def parse_args():
     parser.add_argument("--normalize_similarities", action="store_true", help="Min-max normalize similarities")
     parser.add_argument("--path_to_synthetic_data", type=str, default=None, help="Path to synthetic normalization data")
     parser.add_argument("--harris_lambda", type=float, default=0.1, help="Harris corner detection lambda for fusion")
+    parser.add_argument("--text_norm", choices=["own", "image"], default="own",
+                        help="Scale of the text-to-image similarity: its own synthetic minimum, as in the paper (default), or the "
+                             "image minimum, as the code before 25/10/2026 (reproduces the numbers of the paper)")
     
     # Output
     parser.add_argument("--results_dir", type=str, default="results", help="Directory to save results")
@@ -130,6 +133,7 @@ def apply_method_preset(args):
     parser.add_argument("--normalize_similarities", action="store_true")
     parser.add_argument("--path_to_synthetic_data", type=str, default=None)
     parser.add_argument("--harris_lambda", type=float, default=0.1)
+    parser.add_argument("--text_norm", choices=["own", "image"], default="own")
     parser.add_argument("--results_dir", type=str, default="results")
     parser.add_argument("--use_preset", action="store_true")
     
@@ -353,7 +357,7 @@ def save_results(instance_results, args, method, dataset_name, elapsed_time):
                 'specified_corpus', 'specified_ncorpus', 'aa',
                 'num_principal_components_for_projection', 'standardize_features',
                 'use_laion_mean', 'project_features', 'do_query_expansion',
-                'normalize_similarities', 'path_to_synthetic_data', 'harris_lambda'
+                'normalize_similarities', 'path_to_synthetic_data', 'harris_lambda', 'text_norm'
             }
             excluded_keys.update(basic_specific_keys)
         

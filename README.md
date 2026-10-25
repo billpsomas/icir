@@ -42,6 +42,7 @@ Official implementation of our **B**aseline **A**pproach for **S**urpr**I**singl
 15. [Contact](#contact)
 
 # News
+- **25/10/2026**: BASIC now normalizes the text-to-image similarity by its own minimum, as described in the paper. The code previously divided it by the image-to-image minimum, which is how the numbers in the paper were obtained. Use `--text_norm image` to reproduce them. See the [note under Results](#note-on-the-similarity-normalization).
 - **20/12/2025**: 🤗 HuggingFace WebDataset is now supported. You can now find i-CIR [[`here`](https://huggingface.co/datasets/billpsomas/icir)].
 - **5/12/2025**: i-CIR is presented at NeurIPS 2025! 🎉 Go now through [[`poster`](.github/icir_poster.png)].
 
@@ -308,6 +309,7 @@ The codebase implements several retrieval methods:
 - `--project_features`: Apply PCA projection
 - `--do_query_expansion`: Expand queries with retrieved images
 - `--normalize_similarities`: Apply score normalization using synthetic data
+- `--text_norm`: Scale of the text-to-image similarity: `own` divides it by its own synthetic minimum, as in the paper (default); `image` divides it by the image-to-image minimum, as the code did before 25/10/2026 (reproduces the numbers in the paper)
 
 # Corpus Files
 
@@ -356,6 +358,18 @@ Each result file includes:
 | **BASIC†**         |     27.54 | 28.90 |   35.75 | 38.22 | **34.35** |
 
 † Without query expansion.
+
+### Note on the similarity normalization
+
+The paper normalizes both similarities with their own minimum on the synthetic data, $\tilde{s} = (s - s_{\min}) / |s_{\min}|$,
+for the image-to-image similarity $s^v$ and the text-to-image similarity $s^t$. Until 25/10/2026 the code divided $s^t$ by
+the image-to-image minimum $|s^v_{\min}|$ instead of its own, and the numbers above (as in the paper) were obtained this way.
+The code now follows the paper. On i-CIR this lowers BASIC's mAP by about 0.7 and BASIC†'s by about 0.9 in our runs. To
+reproduce the table, add `--text_norm image`:
+
+```bash
+python3 run_retrieval.py --method basic --use_preset --text_norm image
+```
 
 # Project Structure
 
